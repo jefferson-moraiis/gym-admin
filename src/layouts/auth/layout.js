@@ -3,7 +3,6 @@ import NextLink from 'next/link';
 import { Box, Typography, Unstable_Grid2 as Grid } from '@mui/material';
 import { Logo } from 'src/components/logo';
 
-// TODO: Change subtitle text
 
 export const Layout = (props) => {
   const { children } = props;
@@ -64,7 +63,11 @@ export const Layout = (props) => {
             display: 'flex',
             justifyContent: 'center',
             '& img': {
-              maxWidth: '100%'
+              maxWidth: '100%',
+              display: 'block'
+            },
+            '@media (max-width: 1024px)': {
+              display: 'none'
             }
           }}
         >
@@ -79,25 +82,10 @@ export const Layout = (props) => {
               }}
               variant="h1"
             >
-              Welcome to{' '}
-              <Box
-                component="a"
-                sx={{ color: '#15B79E' }}
-                target="_blank"
-              >
-                Devias Kit
-              </Box>
-            </Typography>
-            <Typography
-              align="center"
-              sx={{ mb: 3 }}
-              variant="subtitle1"
-            >
-              A professional kit that comes with ready-to-use MUI components.
             </Typography>
             <img
               alt=""
-              src="/assets/auth-illustration.svg"
+              src="/assets/logo.jpg"
             />
           </Box>
         </Grid>

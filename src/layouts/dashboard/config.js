@@ -7,6 +7,7 @@ import UserPlusIcon from '@heroicons/react/24/solid/UserPlusIcon';
 import UsersIcon from '@heroicons/react/24/solid/UsersIcon';
 import XCircleIcon from '@heroicons/react/24/solid/XCircleIcon';
 import { SvgIcon } from '@mui/material';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 export const items = [
   {
@@ -28,6 +29,15 @@ export const items = [
     )
   },
   {
+    title: 'Workouts',
+    path: '/workouts',
+    icon: (
+      <SvgIcon fontSize="small">
+        <FitnessCenterIcon />
+      </SvgIcon>
+    )
+  },
+  {
     title: 'Companies',
     path: '/companies',
     icon: (
@@ -42,42 +52,6 @@ export const items = [
     icon: (
       <SvgIcon fontSize="small">
         <UserIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Settings',
-    path: '/settings',
-    icon: (
-      <SvgIcon fontSize="small">
-        <CogIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Login',
-    path: '/auth/login',
-    icon: (
-      <SvgIcon fontSize="small">
-        <LockClosedIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Register',
-    path: '/auth/register',
-    icon: (
-      <SvgIcon fontSize="small">
-        <UserPlusIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Error',
-    path: '/404',
-    icon: (
-      <SvgIcon fontSize="small">
-        <XCircleIcon />
       </SvgIcon>
     )
   }

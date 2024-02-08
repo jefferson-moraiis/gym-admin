@@ -18,23 +18,18 @@ import {
 import { Scrollbar } from 'src/components/scrollbar';
 import { getInitials } from 'src/utils/get-initials';
 
-export const CustomersTable = (props) => {
+export const WorkoutsTable = (props) => {
   const router = useRouter(); 
-  const handleSelectCustomer = (customerId) => {
-    router.push(`/customer/${customerId}`);
+  const handleSelectCustomer = (workoutId) => {
+    router.push(`/workout/${workoutId}`);
   };
   const {
     count = 0,
-    items = [],
-    onDeselectAll,
-    onDeselectOne,
+    workouts = [],
     onPageChange = () => {},
     onRowsPerPageChange,
-    onSelectAll,
-    onSelectOne,
     page = 0,
     rowsPerPage = 0,
-    selected = []
   } = props;
 
   return (
@@ -48,20 +43,17 @@ export const CustomersTable = (props) => {
                   Name
                 </TableCell>
                 <TableCell>
-                  Email
-                </TableCell>
-                <TableCell>
-                  Phone
+                  Descrição
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((customer) => {
+              {workouts.map((workout) => {
                 return (
                   <TableRow
                     hover
-                    key={customer.id}
-                    onClick={() => handleSelectCustomer(customer.id)}
+                    key={workout.id}
+                    onClick={() => handleSelectCustomer(workout.id)}
                   >
                     <TableCell>
                       <Stack
@@ -69,20 +61,14 @@ export const CustomersTable = (props) => {
                         direction="row"
                         spacing={2}
                       >
-                        <Avatar src={customer.avatar}>
-                          {getInitials(customer.name)}
-                        </Avatar>
                         <Typography variant="subtitle2">
-                          {customer.name}
+                          {workout.name}
                         </Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>
-                      {customer.email}
-                    </TableCell>
-                    <TableCell>
-                      {customer.phone}
-                    </TableCell>
+                    <Typography >
+                          {workout.description}
+                        </Typography>
                   </TableRow>
                 );
               })}
@@ -103,7 +89,7 @@ export const CustomersTable = (props) => {
   );
 };
 
-CustomersTable.propTypes = {
+WorkoutsTable.propTypes = {
   count: PropTypes.number,
   items: PropTypes.array,
   onDeselectAll: PropTypes.func,

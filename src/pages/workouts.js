@@ -12,6 +12,7 @@ import { CustomersSearch } from 'src/sections/customer/customers-search';
 import { applyPagination } from 'src/utils/apply-pagination';
 import { AddCustomer } from 'src/sections/customer/add-customer';
 import api from '../utils/api';
+import { WorkoutsTable } from 'src/sections/customer/workouts-table';
 
 const useCustomers = (data, page, rowsPerPage) => {
   return useMemo(() => {
@@ -38,7 +39,7 @@ const Page = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const fetchData = async () => {
-    const response = await api.get('/user')
+    const response = await api.get('/workout')
     if (response.data) {
       setData(response.data);
     }
@@ -78,7 +79,7 @@ const Page = () => {
     <>
       <Head>
         <title>
-          Customers
+          Treinos
         </title>
       </Head>
       <Box
@@ -97,7 +98,7 @@ const Page = () => {
             >
               <Stack spacing={1}>
                 <Typography variant="h4">
-                  Customers
+                  Treinos
                 </Typography>
                 <Stack
                   alignItems="center"
@@ -121,18 +122,8 @@ const Page = () => {
               </div>
             </Stack>
             <CustomersSearch />
-            <CustomersTable
-              count={data.length}
-              items={customers}
-              onDeselectAll={customersSelection.handleDeselectAll}
-              onDeselectOne={customersSelection.handleDeselectOne}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              onSelectAll={customersSelection.handleSelectAll}
-              onSelectOne={customersSelection.handleSelectOne}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              selected={customersSelection.selected}
+            <WorkoutsTable
+              workouts={customers}
             />
           </Stack>
         </Container>

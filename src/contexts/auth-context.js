@@ -1,5 +1,8 @@
-import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { signInWithEmailAndPassword , signOut} from 'firebase/auth';
+import { auth } from '../../firebase';
+import api from "../utils/api";
 
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',
@@ -63,101 +66,139 @@ export const AuthProvider = (props) => {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const initialized = useRef(false);
+  const [user, setUser] = useState(null);
 
-  const initialize = async () => {
-    // Prevent from calling twice in development mode with React.StrictMode enabled
+  const initialize = () => {
     if (initialized.current) {
       return;
     }
-
+  
     initialized.current = true;
-
-    let isAuthenticated = false;
-
-    try {
-      isAuthenticated = window.sessionStorage.getItem('authenticated') === 'true';
-    } catch (err) {
-      console.error(err);
-    }
-
-    if (isAuthenticated) {
-      const user = {
-        id: '5e86809283e28b96d2d38537',
-        avatar: '/assets/avatars/avatar-anika-visser.png',
-        name: 'Anika Visser',
-        email: 'anika.visser@devias.io'
-      };
-
-      dispatch({
-        type: HANDLERS.INITIALIZE,
-        payload: user
-      });
-    } else {
-      dispatch({
-        type: HANDLERS.INITIALIZE
-      });
-    }
+  
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Usuário está autenticado
+        const userData = {
+          id: user.uid,
+          avatar: '/assets/avatars/avatar-anika-visser.png',
+          name: user.displayName,
+          email: user.email
+        };
+  
+        dispatch({
+          type: HANDLERS.INITIALIZE,
+          payload: userData
+        });
+      } else {
+        // Usuário não está autenticado
+        dispatch({
+          type: HANDLERS.INITIALIZE
+        });
+      }
+    });
   };
 
   useEffect(
     () => {
       initialize();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+    },[]);
 
   const skip = () => {
     try {
-      window.sessionStorage.setItem('authenticated', 'true');
+      window.localStorage.setItem('authenticated', 'true');
     } catch (err) {
       console.error(err);
+      window.sessionStorage.removeItem('authenticated')
     }
 
-    const user = {
-      id: '5e86809283e28b96d2d38537',
+    if (isAuthenticated && user !== null) {
+      console.log("🚀 ~ skip ~ user", user)
+    const userData = {
+      id: user.uid,
       avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'Anika Visser',
-      email: 'anika.visser@devias.io'
+      name: user.displayName,
+      email: user.email
     };
 
     dispatch({
       type: HANDLERS.SIGN_IN,
-      payload: user
+      payload: userData
     });
+  }else{
+    dispatch({
+      type: HANDLERS.SIGN_OUT
+    });
+  }
   };
 
   const signIn = async (email, password) => {
-    if (email !== 'demo@devias.io' || password !== 'Password123!') {
-      throw new Error('Please check your email and password');
-    }
-
     try {
-      window.sessionStorage.setItem('authenticated', 'true');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("🚀 ~ signIn ~ userCredential:", userCredential)
+      const {data} = await api.get(`/user/${userCredential.user.uid}`);
+      if(data.role === 'admin'){
+        setUser(userCredential.user)
+        window.localStorage.setItem('authenticated', 'true');
+        const userData = {
+          id: user.uid,
+          avatar: '/assets/avatars/avatar-anika-visser.png',
+          name: user.displayName,
+          email: user.email
+        };
+        dispatch({
+          type: HANDLERS.SIGN_IN,
+          payload: userData
+        });
+      }else {
+        dispatch({
+          type: HANDLERS.SIGN_OUT
+        });
+        throw new Error('Usuario não tem permissão')
+      }
     } catch (err) {
-      console.error(err);
+      console.log("🚀 ~ signIn ~ err:", err)
+      window.sessionStorage.removeItem('authenticated')
+      if(err.code === 'auth/invalid-credential'){
+        throw new Error('Email e senha incorretos')
+      }
+      throw new Error(err.message)
     }
-
-    const user = {
-      id: '5e86809283e28b96d2d38537',
-      avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'Anika Visser',
-      email: 'anika.visser@devias.io'
-    };
-
-    dispatch({
-      type: HANDLERS.SIGN_IN,
-      payload: user
-    });
   };
 
   const signUp = async (email, name, password) => {
-    throw new Error('Sign up is not implemented');
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log("🚀 ~ signUp ~ userCredential :", userCredential )
+
+      setUser(userCredential.user)
+      const userData = {
+        id: user.uid,
+        avatar: '/assets/avatars/avatar-anika-visser.png',
+        name: user.displayName,
+        email: user.email
+      };
+  
+  
+      window.sessionStorage.setItem('authenticated', 'true');
+  
+      dispatch({
+        type: HANDLERS.SIGN_IN,
+        payload: userData
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to sign up with email and password');
+    }
   };
 
-  const signOut = () => {
-    dispatch({
-      type: HANDLERS.SIGN_OUT
+  const logOut = () => {
+    signOut(auth).then(() => {
+      window.sessionStorage.removeItem('authenticated');
+      dispatch({
+        type: HANDLERS.SIGN_OUT
+      });
+    }).catch((error) => {
+      console.error(error);
     });
   };
 
@@ -168,7 +209,7 @@ export const AuthProvider = (props) => {
         skip,
         signIn,
         signUp,
-        signOut
+        logOut
       }}
     >
       {children}
